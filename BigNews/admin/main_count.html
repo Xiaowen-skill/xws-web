@@ -62,7 +62,8 @@
 
     <!-- 折线图 -->
     <script>
-        var json = '{"code":200,"msg":"获取成功","date":[{"date":"2019-05-20","count":23},{"date":"2019-05-21","count":19},{"date":"2019-05-22","count":29},{"date":"2019-05-23","count":24},{"date":"2019-05-24","count":28},{"date":"2019-05-25","count":28},{"date":"2019-05-26","count":19},{"date":"2019-05-27","count":25},{"date":"2019-05-28","count":25}]}';
+        var json =
+            '{"code":200,"msg":"获取成功","date":[{"date":"2019-05-20","count":23},{"date":"2019-05-21","count":19},{"date":"2019-05-22","count":29},{"date":"2019-05-23","count":24},{"date":"2019-05-24","count":28},{"date":"2019-05-25","count":28},{"date":"2019-05-26","count":19},{"date":"2019-05-27","count":25},{"date":"2019-05-28","count":25}]}';
         var obj = JSON.parse(json);
         loadEchars(obj);
 
@@ -105,8 +106,12 @@
                         dataZoom: {
                             yAxisIndex: 'none'
                         },
-                        dataView: { readOnly: false },
-                        magicType: { type: ['line', 'bar'] },
+                        dataView: {
+                            readOnly: false
+                        },
+                        magicType: {
+                            type: ['line', 'bar']
+                        },
                         restore: {},
                         saveAsImage: {}
                     },
@@ -116,18 +121,17 @@
                     type: 'value',
                     boundaryGap: [0, '100%']
                 },
-                series: [
-                    {
-                        name: '新增文章',
-                        type: 'line',
-                        smooth: true,
-                        // symbol: 'none',
-                        sampling: 'average',
-                        itemStyle: {
-                            color: '#f80'
-                        },
-                        areaStyle: {
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                series: [{
+                    name: '新增文章',
+                    type: 'line',
+                    smooth: true,
+                    // symbol: 'none',
+                    sampling: 'average',
+                    itemStyle: {
+                        color: '#f80'
+                    },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                                 offset: 0,
                                 color: 'rgba(255,136,0,0.39)'
                             }, {
@@ -137,11 +141,11 @@
                             {
                                 offset: 1,
                                 color: 'rgba(255,222,0,0.00)'
-                            }])
-                        },
-                        data: data
-                    }
-                ],
+                            }
+                        ])
+                    },
+                    data: data
+                }],
             }
             // 使用刚指定的配置项和数据显示图表。
             myChart.setOption(option);
@@ -169,30 +173,42 @@
                 top: 30
             },
             color: ['#5885e8', '#13cfd5', '#00ce68', '#ff9565', '#20ff19'],
-            series: [
-                {
-                    name: '分类名称',
-                    type: 'pie',
-                    radius: ['50%', '70%'],
-                    avoidLabelOverlap: false,
-                    label: {
-                        emphasis: {
-                            show: true,
-                            textStyle: {
-                                fontSize: '30',
-                                fontWeight: 'bold'
-                            }
+            series: [{
+                name: '分类名称',
+                type: 'pie',
+                radius: ['50%', '70%'],
+                avoidLabelOverlap: false,
+                label: {
+                    emphasis: {
+                        show: true,
+                        textStyle: {
+                            fontSize: '30',
+                            fontWeight: 'bold'
                         }
+                    }
+                },
+                data: [{
+                        value: 335,
+                        name: '爱生活'
                     },
-                    data: [
-                        { value: 335, name: '爱生活' },
-                        { value: 310, name: '趣美味' },
-                        { value: 234, name: '爱旅行' },
-                        { value: 135, name: '爱电影' },
-                        { value: 548, name: '爱保健' }
-                    ]
-                }
-            ]
+                    {
+                        value: 310,
+                        name: '趣美味'
+                    },
+                    {
+                        value: 234,
+                        name: '爱旅行'
+                    },
+                    {
+                        value: 135,
+                        name: '爱电影'
+                    },
+                    {
+                        value: 548,
+                        name: '爱保健'
+                    }
+                ]
+            }]
         };
         // 使用刚指定的配置项和数据显示图表。
         myChart1.setOption(option1);
@@ -209,14 +225,14 @@
             },
             tooltip: {
                 trigger: 'axis',
-                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
-                    type: 'line'        // 默认为直线，可选为：'line' | 'shadow'
+                axisPointer: { // 坐标轴指示器，坐标轴触发有效
+                    type: 'line' // 默认为直线，可选为：'line' | 'shadow'
                 },
-                
+
             },
             legend: {
                 data: ['爱生活', '趣美味', '爱旅行', '爱电影', '爱保健'],
-                top:30
+                top: 30
             },
             grid: {
                 left: '3%',
@@ -224,20 +240,15 @@
                 bottom: '3%',
                 containLabel: true
             },
-            xAxis: [
-                {
-                    type: 'category',
-                    data: ['一月', '二月', '三月', '四月']
-                }
-            ],
-            yAxis: [
-                {
-                    type: 'value'
-                }
-            ],
+            xAxis: [{
+                type: 'category',
+                data: ['一月', '二月', '三月', '四月']
+            }],
+            yAxis: [{
+                type: 'value'
+            }],
             color: ['#5885e8', '#13cfd5', '#00ce68', '#ff9565', '#20ff19'],
-            series: [
-                {
+            series: [{
                     name: '爱生活',
                     type: 'bar',
                     data: [320, 332, 301, 334]

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/iconfont.css">
     <link rel="stylesheet" href="css/main.css">
-    <script src="./libs/jquery-1.12.4.min.js"></script>
+    <script src="../js/jquery-1.12.4.min.js"></script>
     <!-- 导入bootstrap的js文件 -->
     <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
 </head>
@@ -51,8 +51,27 @@
         </div>
         <!-- 右侧主体内容 -->
         <div class="main" id="main_body">
-
         </div>
     </div>
+    <script>
+        $(function () {
+            // 进行全局ajax设置
+            /* 主页分析
+            1.渲染个人中心的数据
+            */
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/admin/user/info',
+                type: 'get',
+                dataType: 'json',
+                success: function (backData) {
+                    console.log(backData);
+                    $('.user_info>img').attr('src', backData.userPic);
+                    $('.user_info>span').text(`欢迎  ${backData.nickname}`);
+                    $('.user_center_link>img').attr('src', backData.userPic);
+                }
+            });
+        })
+    </script>
 </body>
+
 </html>
