@@ -25,34 +25,40 @@
         </div>
         <!-- 左侧导航栏 -->
         <div class="menu">
-            <div class="level01 active"><a href="#" target="main_frame"><i
+            <div class="level01 active"><a href="./main_count.html" target="myframe"><i
                         class="iconfont icon-yidiandiantubiao04"></i><span>首页</span></a></div>
             <div class="level01"><a href="#"><i class="iconfont icon-icon-article"></i><span>文章管理</span><b
                         class="iconfont icon-arrowdownl"></b></a></div>
             <ul class="level02">
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章类别管理</span></a>
+                <li><a href="./article_list.html" target="myframe"><i
+                            class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
+                <li><a href="./article_release.html" target="myframe"><i
+                            class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
+                <li><a href="./article_category.html" target="myframe"><i
+                            class="iconfont icon-previewright"></i><span>文章类别管理</span></a>
                 </li>
             </ul>
 
-            <div class="level01"><a href="#" target="main_frame"><i
-                        class="iconfont icon-comment"></i><span>评论管理</span></a></div>
-            <div class="level01" id="user"><a href="#" target="main_frame"><i
+            <div class="level01"><a href="./comment_list.html" target="myframe"><i
+                        class="iconfont icon-comment"></i><span>评论管理</span></a>
+            </div>
+            <div class="level01" id="user"><a href="./user.html" target="myframe"><i
                         class="iconfont icon-user"></i><span>个人中心</span></a></div>
         </div>
         <!-- 顶部栏 -->
         <div class="header_bar">
             <div class="user_center_link">
-                <a href="./user.html" target="main_frame">个人中心</a>
+                <a href="./user.html" target="myframe" id="user_center">个人中心</a>
                 <img src="images/2.jpg" alt="person">
                 <a href="javascript:void(0)" class="logout"><i class="iconfont icon-tuichu"></i> 退出</a>
             </div>
         </div>
         <!-- 右侧主体内容 -->
         <div class="main" id="main_body">
+            <iframe src="./main_count.html" frameborder="0" name="myframe" style="width: 100%;height: 100%;"></iframe>
         </div>
     </div>
+    <script src="./libs/http.js"></script>
     <script>
         $(function () {
             // 进行全局ajax设置
@@ -60,16 +66,49 @@
             1.渲染个人中心的数据
             */
             $.ajax({
-                url: 'http://localhost:8080/api/v1/admin/user/info',
+                url: BigNew.user_info,
                 type: 'get',
                 dataType: 'json',
                 success: function (backData) {
                     console.log(backData);
-                    $('.user_info>img').attr('src', backData.userPic);
-                    $('.user_info>span').text(`欢迎  ${backData.nickname}`);
-                    $('.user_center_link>img').attr('src', backData.userPic);
+                    $('.user_info>img').attr('src', backData.data.userPic);
+                    $('.user_info>span').text(`欢迎  ${backData.data.nickname}`);
+                    $('.user_center_link>img').attr('src', backData.data.userPic);
                 }
             });
+            // 2.退出的点击事件
+            $('.logout').click(function () {
+                localStorage.removeItem('token');
+            })
+            // 3.左侧边栏的点击事件
+            $('.level01').click(function () {
+                // 排他思想
+                $(this).addClass('active')
+                    .siblings().removeClass('active');
+                // level02的点击事件
+                if ($(this).index() == 1) {
+                    //二级菜单
+                    $('.level02').slideToggle();
+                    // 小箭头的变化
+                    $(this).find('b').toggleClass('rotate0');
+                    // 默认加载第一个事件
+                    $('.level02>li:eq(0) a')[0].click();
+                }
+            })
+            // 4.二级菜单的点击事件
+            $('.level02>li').click(function () {
+                // 排他思想
+                $(this).addClass('active')
+                    .siblings().removeClass('active');
+                // level01回到自身
+                $('.level01:eq(1)').addClass('active')
+                    .siblings().removeClass('active');
+            })
+            // 5.点击个人中心高亮左侧边栏
+            $('#user_center').click(function () {
+                $('.level01:eq(3)').addClass('active')
+                    .siblings().removeClass('active');
+            })
         })
     </script>
 </body>
