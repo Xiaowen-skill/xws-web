@@ -35,7 +35,8 @@
                         <td>奇趣事</td>
                         <td>funny</td>
                         <td class="text-center">
-                            <a href="javascript:void(0);" data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
+                            <a href="javascript:void(0);" data-toggle="modal" data-target="#myModal"
+                                class=" btn btn-info btn-xs">编辑</a>
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs">删除</a>
                         </td>
                     </tr>
@@ -51,5 +52,144 @@
             </table>
         </div>
     </div>
+    <!-- 模态框 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">文章类别</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">分类名称</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">Slug</label>
+                            <input class="form-control" id="message-text">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary btn-confirm">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 文章列表的模板引擎 -->
+    <script id="cat_list" type="text/html">
+        {{ each data v}}
+        <tr>
+            <td>{{ v.name }}</td>
+            <td>{{ v.slug }}</td>
+            <td class="text-center">
+                <a data-id="{{ v.id }}" href="javascript:void(0);" data-toggle="modal" data-target="#myModal"
+                    class=" btn btn-info btn-xs btn-change">编辑</a>
+                <a data-id="{{ v.id }}" href="javascript:void(0);" class="btn btn-danger btn-xs btn-delete">删除</a>
+            </td>
+        </tr>
+        {{ /each }}
+    </script>
+    <script src="./libs/http.js"></script>
+    <script>
+        $(function () {
+            // 发送ajax请求，得到数据
+            $.ajax({
+                url: BigNew.category_list,
+                type: 'get',
+                dataType: 'json',
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        // 渲染页面
+                        $('table>tbody').html(template('cat_list', backData))
+                    }
+                }
+            });
+            // 给模态框一个加载事件
+            $('#myModal').on('show.bs.modal', function (e) {
+                if ($(e.relatedTarget).text() == '新增分类') {
+                    $('.btn-confirm').text('新增');
+                }
+                if ($(e.relatedTarget).text() == '编辑') {
+                    $('.btn-confirm').text('编辑');
+                    // 获取里面的值
+                    $('#recipient-name').val($(e.relatedTarget).parent().prev().prev().text());
+                    $('#message-text').val($(e.relatedTarget).parent().prev().text());
+                    // 页面之内的传值
+                    $('.btn-confirm').attr('data-id', $(e.relatedTarget).attr('data-id'));
+
+                }
+            })
+            // 给新增分类里面的‘取消’点击事件
+            $('.btn-cancel').click(function () {
+                // 清空表单
+                $('form')[0].reset();
+            })
+            // 给新增分类里面的‘确认’点击事件
+            $('.btn-confirm').click(function () {
+                if ($(this).text() == '新增') {
+                    $.ajax({
+                        url: BigNew.category_add,
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+                        },
+                        success: function (backData) {
+                            console.log(backData);
+                            if (backData.code == 201) {
+                                alert('新增成功');
+                                window.location.reload();
+                            }
+                        }
+                    });
+                }
+                if ($(this).text() == '编辑') {
+                    $.ajax({
+                        url: BigNew.category_edit,
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            id: $(this).attr('data-id'),
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+                        },
+                        success: function (backData) {
+                            console.log(backData);
+                            if (backData.code == 200) {
+                                alert('修改成功');
+                                window.location.reload();
+                            }
+                        }
+                    });
+                }
+            })
+            // 给删除按钮点击事件
+            $('table>tbody').on('click', '.btn-delete', function () {
+                $.ajax({
+                    url: BigNew.category_delete,
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        id: $(this).attr('data-id')
+                    },
+                    success: function (backData) {
+                        console.log(backData);
+                        if (backData.code == 204) {
+                            alert('删除成功');
+                            window.location.reload();
+                        }
+                    }
+                });
+            })
+        })
+    </script>
+</body>
 
 </html>

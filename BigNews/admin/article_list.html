@@ -72,6 +72,87 @@
             </div>
         </div>
     </div>
+    <!-- 文章搜索 -->
+    <script id="art_list" type="text/html">
+        {{ each data.data v}}
+        <tr>
+            <td>{{ v.title }}</td>
+            <td>{{ v.author }}</td>
+            <td>{{ v.category }}</td>
+            <td class="text-center">{{ v.date }}</td>
+            <td class="text-center">{{ v.state }}</td>
+            <td class="text-center">
+                <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
+                <a href="javascript:void(0);" class="btn btn-danger btn-xs delete">删除</a>
+            </td>
+        </tr>
+        {{ /each }}
+    </script>
+    <!-- 所有分类 -->
+    <script id="all_lei" type="text/html">
+        <option value="">所有分类</option>
+        {{ each data v}}
+        <option value="{{ v.id }}">{{ v.name}}</option>
+        {{ /each }}
+    </script>
+    <script src="./libs/http.js"></script>
+    <script>
+        // 发送ajax请求服务器数据，渲染页面
+        $.ajax({
+            url: BigNew.article_query,
+            type: 'get',
+            dataType: 'json',
+            data: {
+                type: '',
+                state: '',
+                page: 1,
+                perpage: 10
+            },
+            success: function (backData) {
+                console.log(backData);
+                if (backData.code == 200) {
+                    // 渲染页面
+                    $('table>tbody').html(template('art_list', backData))
+                }
+            }
+        });
+        // 渲染所有分类里面的东西
+        $.ajax({
+            url: BigNew.category_list,
+            type: 'get',
+            dataType: 'json',
+            success: function (backData) {
+                console.log(backData);
+                if (backData.code == 200) {
+                    // 渲染页面
+                    $('#selCategory').html(template('all_lei', backData));
+                }
+            }
+        });
+
+        // 筛选按钮
+        $('#btnSearch').click(function (e) {
+            // 阻止默认跳转
+            e.preventDefault()
+            $.ajax({
+                url: BigNew.article_query,
+                type: 'get',
+                dataType: 'json',
+                data: {
+                    type: $('#selCategory').val(),
+                    state: $('#selStatus').val(),
+                    page: 1,
+                    perpage: 10
+                },
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        $('table>tbody').html(template('art_list', backData))
+                    }
+                }
+            });
+        })
+    </script>
 </body>
 
 </html>
