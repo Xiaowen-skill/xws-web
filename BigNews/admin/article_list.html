@@ -13,6 +13,8 @@
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
+    <!-- 引入分页插件 -->
+    <script src="./libs/jquery.twbsPagination.js"></script>
 </head>
 
 <body>
@@ -69,6 +71,7 @@
                 </tbody>
             </table>
             <div class="row text-center">
+                <ul id="pagination" class="pagination-sm"></ul>
             </div>
         </div>
     </div>
@@ -76,14 +79,14 @@
     <script id="art_list" type="text/html">
         {{ each data.data v}}
         <tr>
-            <td>{{ v.title }}</td>
+            <td class="goto">{{ v.title }}</td>
             <td>{{ v.author }}</td>
             <td>{{ v.category }}</td>
             <td class="text-center">{{ v.date }}</td>
             <td class="text-center">{{ v.state }}</td>
             <td class="text-center">
-                <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
-                <a href="javascript:void(0);" class="btn btn-danger btn-xs delete">删除</a>
+                <a href="article_edit.html?id={{ v.id }}" class="btn btn-default btn-xs">编辑</a>
+                <a data-id="{{ v.id }}" href="javascript:void(0);" class="btn btn-danger btn-xs delete">删除</a>
             </td>
         </tr>
         {{ /each }}
@@ -97,26 +100,7 @@
     </script>
     <script src="./libs/http.js"></script>
     <script>
-        // 发送ajax请求服务器数据，渲染页面
-        $.ajax({
-            url: BigNew.article_query,
-            type: 'get',
-            dataType: 'json',
-            data: {
-                type: '',
-                state: '',
-                page: 1,
-                perpage: 10
-            },
-            success: function (backData) {
-                console.log(backData);
-                if (backData.code == 200) {
-                    // 渲染页面
-                    $('table>tbody').html(template('art_list', backData))
-                }
-            }
-        });
-        // 渲染所有分类里面的东西
+        // 1.渲染所有分类里面的东西
         $.ajax({
             url: BigNew.category_list,
             type: 'get',
@@ -130,10 +114,18 @@
             }
         });
 
-        // 筛选按钮
+        // 2.筛选按钮
         $('#btnSearch').click(function (e) {
             // 阻止默认跳转
             e.preventDefault()
+            //运行函数
+            artPage()
+        })
+        // 3.页面一加哉就运行点击事件
+        $('#btnSearch').click();
+
+        function artPage() {
+            // 发送ajax请求服务器数据，渲染页面
             $.ajax({
                 url: BigNew.article_query,
                 type: 'get',
@@ -147,10 +139,77 @@
                 success: function (backData) {
                     console.log(backData);
                     if (backData.code == 200) {
+                        console.log(backData);
+                        // 渲染页面
+                        $('table>tbody').html(template('art_list', backData))
+                        // 分页功能
+                        $('#pagination').twbsPagination('destroy')
+                        $('#pagination').twbsPagination({
+                            totalPages: backData.data.totalPage,
+                            startPage: 1,
+                            visiblePages: 7,
+                            first: '首页',
+                            prev: '上一页',
+                            next: '下一页',
+                            last: '尾页',
+                            loop: true,
+                            onPageClick: function (event, page) {
+                                $('#page-content').text('Page ' + page);
+                                console.log(page);
+                                changePage(page)
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        function changePage(currentPage) {
+            $.ajax({
+                url: BigNew.article_query,
+                type: 'get',
+                dataType: 'json',
+                data: {
+                    type: $('#selCategory').val(),
+                    state: $('#selStatus').val(),
+                    page: currentPage,
+                    perpage: 10
+                },
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        console.log(backData);
+                        // 渲染页面
                         $('table>tbody').html(template('art_list', backData))
                     }
                 }
             });
+        }
+
+        // 4.删除按钮事件
+        $('table>tbody').on('click', '.delete', function () {
+            $.ajax({
+                url: BigNew.article_delete,
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    id: $(this).attr('data-id')
+                },
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 204) {
+                        alert('删除成功');
+                        window.location.reload();
+                    }
+                }
+            });
+        })
+        // 给td一个点击事件
+        $('table>tbody').on('click', '.goto', function () {
+            // 获取当前的编辑的href值
+            let href = $(this).siblings("td:last-child").children('.btn-xs').attr('href');
+            // 跳转到对应的网页
+            window.location.href = href;
         })
     </script>
 </body>

@@ -10,10 +10,16 @@
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/iconfont.css">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="./libs/jedate/css/jedate.css">
+    <link rel="stylesheet" href="./libs/jedate/css/jeDate-test.css">
     <!-- jq -->
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <!-- 模板引擎 -->
     <script src="./libs/template-web.js"></script>
+    <!-- 日历插件 -->
+    <script src="./libs/jedate/js/jedate.js"></script>
+    <!-- wangEditor插件 -->
+    <script src="./libs/wangEditor.min.js"></script>
 </head>
 
 <body>
@@ -51,11 +57,17 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label">发布时间：</label>
                     <div class="col-sm-4">
+                        <input type="text" class="jeinput" id="testico" placeholder="YYYY-MM-DD">
+                        <div class="icons jebtns"
+                            onclick="jeDate('#testico',{trigger:false,format: 'YYYY-MM-DD',theme: { bgcolor: '#00A680', pnColor: '#00DDAA' },zIndex:10001})">
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
                     <div class="col-sm-10">
+                        <div id="editor">
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -67,6 +79,84 @@
             </form>
         </div>
     </div>
+    <!-- 文章列表模板 -->
+    <script id="art_list" type="text/html">
+        {{ each data v}}
+        <option value="{{ v.id }}">{{ v.name }}</option>
+        {{ /each}}
+    </script>
+    <script src="./libs/http.js"></script>
+    <script>
+        $(function () {
+            //加载日期插件
+            jeDate('#testico', {
+                trigger: 'click',
+                format: "YYYY-MM-DD",
+                isShow: true, //是否显示日历面板  
+                multiPane: true, //false :双面板  true:单面板
+                isinitVal: true, //显示默认时间
+                theme: {
+                    bgcolor: "#ffff00",
+                    color: "#ff0000",
+                    pnColor: "#ee2388"
+                },
+                festival: true, //是否显示农历
+                zIndex: 10001
+            });
+            // 加载wangeditor插件
+            let E = window.wangEditor
+            let editor = new E('#editor')
+            editor.create()
+            // 一开始获取文章类别
+            $.ajax({
+                url: BigNew.category_list,
+                type: 'get',
+                dataType: 'json',
+                success: function (backData) {
+                    console.log(backData);
+                    // 渲染页面
+                    $('.category').html(template('art_list', backData))
+                }
+            });
+            //1.给file表单元素注册onchange事件
+            $('#inputCover').change(function () {
+                //1.2 获取用户选择的图片
+                let file = this.files[0];
+                //1.3 将文件转为src路径
+                let url = URL.createObjectURL(file);
+                //1.4 将url路径赋值给img标签的src
+                $('.article_cover').attr('src', url);
+            });
+
+            $('.btn-release,btn-draft').on('click', function (e) {
+                let state = $(this).hasClass('btn-release') ? '已发布' : '草稿';
+                //禁用表单默认提交事件
+                e.preventDefault();
+                //创建FormData对象：参数是表单dom对象
+                let fd = new FormData($('form')[0]);
+                fd.append('date', $('#testico').val());
+                fd.append('content', editor.txt.html());
+                fd.append('state', state);
+                $.ajax({
+                    url: BigNew.article_publish,
+                    type: 'post',
+                    dataType: 'json',
+                    data: fd,
+                    contentType: false,
+                    processData: false,
+                    success: function (backData) {
+                        console.log(backData);
+                        if (backData.code == 200) {
+                            alert('新增成功');
+                            window.location.href = './article_list.html';
+                            $('.level02>li:eq(0)', window.parent.document).click();
+                        }
+                    }
+                });
+            })
+
+        })
+    </script>
 </body>
 
 </html>
